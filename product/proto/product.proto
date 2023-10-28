@@ -2,16 +2,10 @@ syntax = "proto3";
 
 option go_package = "product/proto";
 
-service ProductService {
-    rpc ListProducts(ProductSearchRequest) returns (ProductsResponse) {}
-    rpc GetProductDetails(ProductDetailsRequest) returns (ProductDetailsResponse) {}
-}
-
 message ProductSearchRequest {
-    string sku = 1;
-    string name = 2;
-    string brand = 3;
-    string category = 4;
+    string category = 1;
+    string gender = 2;
+    string name = 3;
 }
 
 message ProductsResponse {
@@ -21,8 +15,12 @@ message ProductsResponse {
 message ProductResponse {
     int64 id = 1;
     string name = 2;
-    Price price = 3;
-    int32 stock = 4;
+    string brand = 3;
+    string subtitle = 4;
+    string category = 5;
+    string gender = 6;
+    string color = 7;
+    Price price = 8;
 }
 
 message Price {
@@ -36,7 +34,11 @@ message ProductDetailsRequest {
 
 message ProductDetailsResponse {
     string sku = 1;
-    string brand = 2;
-    string description = 3;
-    string category = 4;
+    string description = 2;
+    int32 stock = 4;
+}
+
+service ProductService {
+    rpc SearchProducts(ProductSearchRequest) returns (ProductsResponse) {}
+    rpc GetProductDetails(ProductDetailsRequest) returns (ProductDetailsResponse) {}
 }

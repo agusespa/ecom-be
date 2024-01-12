@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"os"
 
 	"order/internal/application/domain"
 
@@ -30,13 +29,13 @@ type OrderItemEntity struct {
 	Quantity int32   `db:"quantity"`
 }
 
-func NewAdapter(dataSourceUrl string) (*Adapter, error) {
+func NewAdapter() (*Adapter, error) {
 	cfg := mysql.Config{
-		User:   os.Getenv("DBUSER"),
-		Passwd: os.Getenv("DBPASS"),
+		User:   "root",
+		Passwd: "change-me",
 		Net:    "tcp",
-		Addr:   "127.0.0.1:3306",
-		DBName: "databasename",
+		Addr:   "localhost:3306",
+		DBName: "test",
 	}
 
 	db, err := sql.Open("mysql", cfg.FormatDSN())

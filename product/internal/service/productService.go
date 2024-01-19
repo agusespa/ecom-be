@@ -13,35 +13,38 @@ func NewProductService(productRepo *repository.ProductRepository) *ProductServic
 	return &ProductService{ProductRepo: productRepo}
 }
 
-func (ps *ProductService) GetProductById(id int32) (models.Product, error) {
-	productEntity, err := ps.ProductRepo.QueryProductById(id)
-	convertedProduct := convertProductEntityToProduct(productEntity)
-	return convertedProduct, err
-}
-
+// TODO pagination
 func (ps *ProductService) GetAllProducts() ([]models.Product, error) {
 	productEntities, err := ps.ProductRepo.QueryProducts("", "", "")
-	var convertedProducts []models.Product
+	var mappedProducts []models.Product
 	for _, entity := range productEntities {
-		convertedProducts = append(convertedProducts, convertProductEntityToProduct(entity))
+		mappedProduct := models.NewSimpleProduct(
+			entity.ID,
+			entity.Name,
+			entity.Brand,
+			entity.Subtitle,
+			entity.Category,
+			entity.Price,
+			entity.Currency,
+		)
+		mappedProducts = append(mappedProducts, mappedProduct)
 	}
-	return convertedProducts, err
+	return mappedProducts, err
 }
 
-func convertProductEntityToProduct(entity models.ProductEntity) models.Product {
-	price := models.Price{
-		Amount:   float64(entity.Price),
-		Currency: entity.Currency,
-	}
-	product := models.Product{
-		ID:       entity.ID,
-		Name:     entity.Name,
-		Brand:    entity.Brand,
-		Subtitle: entity.Subtitle,
-		Category: entity.Category,
-		Gender:   entity.Gender,
-		Color:    entity.Color,
-		Price:    price,
-	}
-	return product
+func (ps *ProductService) GetProductById(id string) (models.Product, error) {
+	entity, err := ps.ProductRepo.QueryProductById(id)
+	mappedProduct := models.NewProduct(
+		entity.ID,
+		entity.Name,
+		entity.Brand,
+		entity.Subtitle,
+		entity.Category,
+		entity.Price,
+		entity.Currency,
+		entity.Stock,
+		entity.Description,
+		entity.Sku,
+	)
+	return mappedProduct, err
 }

@@ -20,8 +20,8 @@ func main() {
 	productService := service.NewProductService(productRepository)
 	productHandler := handlers.NewProductHandler(productService)
 
-	http.HandleFunc("/products/{id}", productHandler.HandleProductByID)
-	// Define other routes for CRUD operations
+	http.HandleFunc("/products", productHandler.HandleAllProducts)
+	http.HandleFunc("/products/", productHandler.HandleProductByID)
 
 	log.Println("Starting the HTTP server")
 	err := http.ListenAndServe(":8080", nil)

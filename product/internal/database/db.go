@@ -10,10 +10,10 @@ import (
 func ConnectDB() (*sql.DB, error) {
 	cfg := mysql.Config{
 		User:   "root",
-		Passwd: "change-me",
+		Passwd: "sg46sg46",
 		Net:    "tcp",
 		Addr:   "localhost:3306",
-		DBName: "test",
+		DBName: "products",
 	}
 
 	db, err := sql.Open("mysql", cfg.FormatDSN())

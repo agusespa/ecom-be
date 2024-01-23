@@ -2,8 +2,9 @@ package repository
 
 import (
 	"database/sql"
-	"fmt"
+	"net/http"
 
+	"github.com/agusespa/ecom-be-grpc/product/internal/errors"
 	"github.com/agusespa/ecom-be-grpc/product/internal/models"
 )
 
@@ -32,9 +33,11 @@ func (repo *ProductRepository) QueryProductById(id string) (models.ProductEntity
 		&product.Sku,
 	); err != nil {
 		if err == sql.ErrNoRows {
-			return product, fmt.Errorf("product not found error: %v", err)
+			error := errors.New(err, http.StatusNotFound)
+			return product, error
 		}
-		return product, fmt.Errorf("internal error: %v", err)
+		error := errors.New(err, http.StatusInternalServerError)
+		return product, error
 	}
 	return product, nil
 }
@@ -61,7 +64,8 @@ func (repo *ProductRepository) QueryProducts(category string, name string, brand
 
 	rows, err := repo.DB.Query(query, args...)
 	if err != nil {
-		return nil, fmt.Errorf("error querying products: %v", err)
+		error := errors.New(err, http.StatusInternalServerError)
+		return nil, error
 	}
 	defer rows.Close()
 
@@ -77,15 +81,18 @@ func (repo *ProductRepository) QueryProducts(category string, name string, brand
 			&product.Currency,
 		); err != nil {
 			if err == sql.ErrNoRows {
-				return nil, fmt.Errorf("product not found error: %v", err)
+				error := errors.New(err, http.StatusNotFound)
+				return nil, error
 			}
-			return nil, fmt.Errorf("internal error: %v", err)
+			error := errors.New(err, http.StatusInternalServerError)
+			return nil, error
 		}
 		products = append(products, product)
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("internal error: %v", err)
+		error := errors.New(err, http.StatusInternalServerError)
+		return nil, error
 	}
 	return products, nil
 }

@@ -16,15 +16,20 @@ func main() {
 		log.Fatalf("Error establishing database connection: %v", dbErr)
 	}
 
+	// TODO: get port dinamically
+	port := "8080"
+
 	productRepository := repository.NewProductRepository(db)
 	productService := service.NewProductService(productRepository)
 	productHandler := handlers.NewProductHandler(productService)
 
-	http.HandleFunc("/products", productHandler.HandleAllProducts)
+	http.HandleFunc("/products", productHandler.HandleProducts)
 	http.HandleFunc("/products/", productHandler.HandleProductByID)
+	http.HandleFunc("/products/search", productHandler.HandleProductSearch)
+	http.HandleFunc("/products/categories", productHandler.HandleProductCategories)
 
-	log.Println("Starting the HTTP server")
-	err := http.ListenAndServe(":8080", nil)
+	log.Printf("Listening on port %v", port)
+	err := http.ListenAndServe(":"+port, nil)
 	if err != nil {
 		log.Fatalf("Error starting the HTTP server: %v", err)
 	}

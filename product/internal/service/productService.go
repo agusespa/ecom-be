@@ -13,9 +13,34 @@ func NewProductService(productRepo *repository.ProductRepository) *ProductServic
 	return &ProductService{ProductRepo: productRepo}
 }
 
+func (ps *ProductService) GetCategories() ([]string, error) {
+	categories, err := ps.ProductRepo.QueryCategories()
+	return categories, err
+}
+
 // TODO pagination
-func (ps *ProductService) GetAllProducts() ([]models.Product, error) {
-	productEntities, err := ps.ProductRepo.QueryProducts("", "", "")
+func (ps *ProductService) GetProducts(category string, brand string) ([]models.Product, error) {
+	productEntities, err := ps.ProductRepo.QueryProducts(category, brand)
+
+	var mappedProducts []models.Product
+	for _, entity := range productEntities {
+		mappedProduct := models.NewSimpleProduct(
+			entity.ID,
+			entity.Name,
+			entity.Brand,
+			entity.Subtitle,
+			entity.Category,
+			entity.Price,
+			entity.Currency,
+		)
+		mappedProducts = append(mappedProducts, mappedProduct)
+	}
+	return mappedProducts, err
+}
+
+func (ps *ProductService) GetProductsBySearchTerm(term string) ([]models.Product, error) {
+	productEntities, err := ps.ProductRepo.SearchProducts(term)
+
 	var mappedProducts []models.Product
 	for _, entity := range productEntities {
 		mappedProduct := models.NewSimpleProduct(

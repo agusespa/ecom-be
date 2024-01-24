@@ -9,7 +9,7 @@ type Error struct {
 	status int
 }
 
-func New(err error, status int) error {
+func NewError(err error, status int) error {
 	e := &Error{
 		err:    err,
 		status: status,
@@ -34,6 +34,8 @@ func (e *Error) Message() string {
 		return "You do not have permission to perform this action"
 	case http.StatusNotFound:
 		return "The requested resource was not found"
+	case http.StatusMethodNotAllowed:
+		return "Method Not Allowed"
 	default:
 		return "Something went wrong"
 	}

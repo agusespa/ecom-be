@@ -17,16 +17,16 @@ func main() {
 	}
 
 	// TODO: get port dinamically
-	port := "3001"
+	port := "8080"
 
 	productRepository := repository.NewProductRepository(db)
 	productService := service.NewProductService(productRepository)
 	productHandler := handlers.NewProductHandler(productService)
 
-	http.HandleFunc("/productapi/products", productHandler.HandleProducts)
-	http.HandleFunc("/productapi/products/", productHandler.HandleProductByID)
-	http.HandleFunc("/productapi/products/search", productHandler.HandleProductSearch)
-	http.HandleFunc("/productapi/products/categories", productHandler.HandleProductCategories)
+	http.HandleFunc("/products", productHandler.HandleProducts)
+	http.HandleFunc("/products/", productHandler.HandleProductByID)
+	http.HandleFunc("/products/search", productHandler.HandleProductSearch)
+	http.HandleFunc("/products/categories", productHandler.HandleProductCategories)
 
 	log.Printf("Listening on port %v", port)
 	err := http.ListenAndServe(":"+port, nil)

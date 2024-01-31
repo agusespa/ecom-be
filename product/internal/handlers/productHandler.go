@@ -5,9 +5,9 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/agusespa/ecom-be-grpc/product/internal/errors"
-	"github.com/agusespa/ecom-be-grpc/product/internal/payload"
-	"github.com/agusespa/ecom-be-grpc/product/internal/service"
+	"github.com/agusespa/ecom-be/product/internal/errors"
+	"github.com/agusespa/ecom-be/product/internal/payload"
+	"github.com/agusespa/ecom-be/product/internal/service"
 )
 
 type ProductHandler struct {

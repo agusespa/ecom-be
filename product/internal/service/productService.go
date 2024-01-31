@@ -1,8 +1,8 @@
 package service
 
 import (
-	"github.com/agusespa/ecom-be-grpc/product/internal/models"
-	"github.com/agusespa/ecom-be-grpc/product/internal/repository"
+	"github.com/agusespa/ecom-be/product/internal/models"
+	"github.com/agusespa/ecom-be/product/internal/repository"
 )
 
 type ProductService struct {

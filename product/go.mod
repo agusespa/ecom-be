@@ -1,4 +1,4 @@
-module github.com/agusespa/ecom-be-grpc/product
+module github.com/agusespa/ecom-be/product
 
 go 1.20
 

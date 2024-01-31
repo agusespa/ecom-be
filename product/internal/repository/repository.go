@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/agusespa/ecom-be-grpc/product/internal/errors"
-	"github.com/agusespa/ecom-be-grpc/product/internal/models"
+	"github.com/agusespa/ecom-be/product/internal/errors"
+	"github.com/agusespa/ecom-be/product/internal/models"
 )
 
 type ProductRepository struct {

@@ -4,10 +4,10 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/agusespa/ecom-be-grpc/product/internal/database"
-	"github.com/agusespa/ecom-be-grpc/product/internal/handlers"
-	"github.com/agusespa/ecom-be-grpc/product/internal/repository"
-	"github.com/agusespa/ecom-be-grpc/product/internal/service"
+	"github.com/agusespa/ecom-be/product/internal/database"
+	"github.com/agusespa/ecom-be/product/internal/handlers"
+	"github.com/agusespa/ecom-be/product/internal/repository"
+	"github.com/agusespa/ecom-be/product/internal/service"
 )
 
 func main() {
@@ -17,7 +17,7 @@ func main() {
 	}
 
 	// TODO: get port dinamically
-	port := "3001"
+	port := "3004"
 
 	productRepository := repository.NewProductRepository(db)
 	productService := service.NewProductService(productRepository)

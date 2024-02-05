@@ -36,8 +36,6 @@ func (e *Error) Message() string {
 		return "The requested resource was not found"
 	case http.StatusMethodNotAllowed:
 		return "Method Not Allowed"
-	case http.StatusConflict:
-		return "Duplicate entry"
 	default:
 		return "Something went wrong"
 	}

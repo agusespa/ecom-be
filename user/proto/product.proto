@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+option go_package = "product/proto";
+
+message ProductSearchRequest {
+    string category = 1;
+    string gender = 2;
+    string name = 3;
+}
+
+message ProductsResponse {
+    repeated ProductResponse products = 1;
+}
+
+message ProductResponse {
+    int64 id = 1;
+    string name = 2;
+    string brand = 3;
+    string subtitle = 4;
+    string category = 5;
+    string gender = 6;
+    string color = 7;
+    Price price = 8;
+}
+
+message Price {
+    float amount = 1;
+    string currency = 2;
+}
+
+message ProductDetailsRequest {
+    int64 id = 1;
+}
+
+message ProductDetailsResponse {
+    string sku = 1;
+    string description = 2;
+    int32 stock = 4;
+}
+
+service ProductService {
+    rpc SearchProducts(ProductSearchRequest) returns (ProductsResponse) {}
+    rpc GetProductDetails(ProductDetailsRequest) returns (ProductDetailsResponse) {}
+}

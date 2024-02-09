@@ -1,6 +1,10 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/golang-jwt/jwt"
+)
 
 type Customer struct {
 	ID         int64     `json:"customer_id"`
@@ -22,4 +26,14 @@ func NewCustomer(id int64, uuid, email, firstName, middleName, lastName string, 
 		LastName:   lastName,
 		CreatedAt:  createdAt,
 	}
+}
+
+type CustomClaims struct {
+	User TokenUser `json:"user"`
+	Type string    `json:"type"`
+	jwt.StandardClaims
+}
+type TokenUser struct {
+	UserID   int64  `json:"userID"`
+	UserUUID string `json:"userUUID"`
 }

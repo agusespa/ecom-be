@@ -1,11 +1,11 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 
 	"github.com/agusespa/ecom-be/customer/internal/errors"
+	"github.com/agusespa/ecom-be/customer/internal/models"
 	"github.com/agusespa/ecom-be/customer/internal/payload"
 	"github.com/agusespa/ecom-be/customer/internal/service"
 	"github.com/golang-jwt/jwt"
@@ -20,8 +20,6 @@ func NewCustomerHandler(customerService *service.CustomerService) *CustomerHandl
 }
 
 func (h *CustomerHandler) HandleCustomerByUUID(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("CustomerHandler.HandleCustomerByUUID %v\n", r)
-
 	if r.Method != http.MethodGet {
 		err := errors.NewError(nil, http.StatusMethodNotAllowed)
 		payload.WriteError(w, r, err)
@@ -44,25 +42,19 @@ func (h *CustomerHandler) HandleCustomerByUUID(w http.ResponseWriter, r *http.Re
 
 	bearerToken := authParts[1]
 
-	type CustomClaims struct {
-		jwt.StandardClaims
-		UserUUID string `json:"UserUUID"`
-	}
-
-	claims := &CustomClaims{}
+	claims := &models.CustomClaims{}
 	_, _, err := new(jwt.Parser).ParseUnverified(bearerToken, claims)
 	if err != nil {
-		fmt.Println("Error parsing token:", err)
-		return
-	}
-
-	customer, err := h.CustomerService.GetCustomerByUUID(claims.UserUUID)
-	if err != nil {
+		err := errors.NewError(nil, http.StatusUnauthorized)
 		payload.WriteError(w, r, err)
 		return
 	}
 
-	fmt.Printf("Customer: %v\n", customer)
+	customer, err := h.CustomerService.GetCustomerByUUID(claims.User.UserUUID)
+	if err != nil {
+		payload.WriteError(w, r, err)
+		return
+	}
 
 	payload.Write(w, r, customer)
 }

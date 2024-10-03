@@ -20,12 +20,6 @@ func NewCustomerHandler(customerService *service.CustomerService) *CustomerHandl
 }
 
 func (h *CustomerHandler) HandleCustomerByUUID(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		err := errors.NewError(nil, http.StatusMethodNotAllowed)
-		payload.WriteError(w, r, err)
-		return
-	}
-
 	authHeader := r.Header.Get("Authorization")
 	if authHeader == "" {
 		err := errors.NewError(nil, http.StatusUnauthorized)
@@ -50,11 +44,33 @@ func (h *CustomerHandler) HandleCustomerByUUID(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	customer, err := h.CustomerService.GetCustomerByUUID(claims.User.UserUUID)
-	if err != nil {
-		payload.WriteError(w, r, err)
-		return
+	if r.Method == http.MethodGet {
+		customer, err := h.CustomerService.GetCustomerByUUID(claims.User.UserUUID)
+		if err != nil {
+			payload.WriteError(w, r, err)
+			return
+		}
+		payload.Write(w, r, customer)
 	}
 
-	payload.Write(w, r, customer)
+	if r.Method == http.MethodPost {
+		customer, err := h.CustomerService.CreateCustomer(claims.User.UserUUID)
+		if err != nil {
+			payload.WriteError(w, r, err)
+			return
+		}
+		payload.Write(w, r, customer)
+	}
+
+	if r.Method == http.MethodPut {
+		customer, err := h.CustomerService.UpdateCustomer(claims.User.UserUUID)
+		if err != nil {
+			payload.WriteError(w, r, err)
+			return
+		}
+		payload.Write(w, r, customer)
+	}
+
+	err = errors.NewError(nil, http.StatusMethodNotAllowed)
+	payload.WriteError(w, r, err)
 }

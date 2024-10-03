@@ -26,3 +26,10 @@ func (cs *CustomerService) GetCustomerByUUID(uuid string) (models.Customer, erro
 	)
 	return mappedCustomer, err
 }
+
+func (cs *CustomerService) CreateCustomer(uuid string) (int32, error) {
+
+}
+
+func (cs *CustomerService) UpdateCustomer(uuid string) (int32, error) {
+}

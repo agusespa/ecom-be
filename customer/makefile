@@ -1,7 +1,18 @@
-BINARY_NAME=ecom-server
+BINARY_NAME=customer-server
+GOOS ?= linux
+GOARCH ?= amd64
+
+.PHONY: install build run-dev run clean
+
+install:
+	go run cmd/db_init/main.go
 
 build:
-	go build -o $(BINARY_NAME) cmd/server/main.go
+	GOOS=$(GOOS) GOARCH=$(GOARCH) go build -o dist/$(BINARY_NAME) cmd/server/main.go
 
 run:
-	go run cmd/server/main.go
+	go run cmd/server/main.go -dev
+
+clean:
+	rm -rf dist/$(BINARY_NAME)
+

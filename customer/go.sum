@@ -1,4 +1,10 @@
+github.com/agusespa/a3n v0.0.0-20241030135749-c15d43991c38 h1:gFtOXt6t7SV1lwv1MO11WTdYBTW+0Zppmlhq71/iyLE=
+github.com/agusespa/a3n v0.0.0-20241030135749-c15d43991c38/go.mod h1:mMv4j/vncwzkq8UXaTsBFjBvXjRu839TC/GzH7eni9U=
+github.com/agusespa/flogg v0.1.3 h1:1CMampJJ8kla4A6CQG1W33SNNiCQQ2pXF0Sctq1lKcM=
+github.com/agusespa/flogg v0.1.3/go.mod h1:JUSeLA49cJt41lncYmREJn3oNaco3AaF2WEE0i6Dxoo=
 github.com/go-sql-driver/mysql v1.7.1 h1:lUIinVbN1DY0xBg0eMOzmmtGoHwWBbvnWubQUrtU8EI=
 github.com/go-sql-driver/mysql v1.7.1/go.mod h1:OXbVy3sEdcQ2Doequ6Z5BW6fXNQTmx+9S1MCJN5yJMI=
 github.com/golang-jwt/jwt v3.2.2+incompatible h1:IfV12K8xAKAnZqdXVzCZ+TOjboZ2keLg81eXfW3O+oY=
 github.com/golang-jwt/jwt v3.2.2+incompatible/go.mod h1:8pz2t5EyA70fFQQSrl6XZXzqecmYZeUEB8OUGHkxJ+I=
+github.com/google/uuid v1.6.0 h1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=
+github.com/google/uuid v1.6.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=

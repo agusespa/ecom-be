@@ -1,39 +1,41 @@
 package models
 
 import (
+	"database/sql"
 	"time"
-
-	"github.com/golang-jwt/jwt"
 )
 
 type Customer struct {
-	ID         int64     `json:"customer_id"`
-	UUID       string    `json:"uuid"`
-	Email      string    `json:"email"`
-	FirstName  string    `json:"first_name"`
-	MiddleName string    `json:"middle_name"`
-	LastName   string    `json:"last_name"`
-	CreatedAt  time.Time `json:"created_at"`
+	CustomerID   int64     `json:"customer_id"`
+	CustomerUUID string    `json:"uuid"`
+	Email        string    `json:"email"`
+	FirstName    string    `json:"first_name"`
+	MiddleName   string    `json:"middle_name"`
+	LastName     string    `json:"last_name"`
+	CreatedAt    time.Time `json:"created_at"`
 }
 
-func NewCustomer(id int64, uuid, email, firstName, middleName, lastName string, createdAt time.Time) Customer {
+type CustomerRequest struct {
+	CustomerUUID string `json:"uuid"`
+	Email        string `json:"email"`
+	Password     string `json:"password"`
+	FirstName    string `json:"first_name"`
+	MiddleName   string `json:"middle_name"`
+	LastName     string `json:"last_name"`
+}
+
+type RegistrationResponse struct {
+	CustomerID int64 `json:"customerID"`
+}
+
+func NewCustomer(id int64, uuid, email, firstName string, middleNameNullStr sql.NullString, lastName string, createdAt time.Time) Customer {
 	return Customer{
-		ID:         id,
-		UUID:       uuid,
-		Email:      email,
-		FirstName:  firstName,
-		MiddleName: middleName,
-		LastName:   lastName,
-		CreatedAt:  createdAt,
+		CustomerID:   id,
+		CustomerUUID: uuid,
+		Email:        email,
+		FirstName:    firstName,
+		MiddleName:   middleNameNullStr.String,
+		LastName:     lastName,
+		CreatedAt:    createdAt,
 	}
-}
-
-type CustomClaims struct {
-	User TokenUser `json:"user"`
-	Type string    `json:"type"`
-	jwt.StandardClaims
-}
-type TokenUser struct {
-	UserID   int64  `json:"userID"`
-	UserUUID string `json:"userUUID"`
 }

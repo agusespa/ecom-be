@@ -2,29 +2,28 @@ package database
 
 import (
 	"database/sql"
-	"log"
 
+	"github.com/agusespa/ecom-be/customer/internal/models"
 	"github.com/go-sql-driver/mysql"
 )
 
-func ConnectDB() (*sql.DB, error) {
+func ConnectDB(config models.Database) (*sql.DB, error) {
 	cfg := mysql.Config{
-		User:      "root",
-		Passwd:    "sg46sg46",
+		User:      config.User,
+		Passwd:    config.Password,
 		Net:       "tcp",
-		Addr:      "localhost:3306",
-		DBName:    "customers",
+		Addr:      config.Address,
+		DBName:    "ecom_customer",
 		ParseTime: true,
 	}
 
 	db, err := sql.Open("mysql", cfg.FormatDSN())
 	if err != nil {
-		log.Fatalf("Error opening database connection: %v", err)
+		return nil, err
 	}
 
-	pingErr := db.Ping()
-	if pingErr != nil {
-		log.Fatalf("Error pinging database: %v", pingErr)
+	if err := db.Ping(); err != nil {
+		return nil, err
 	}
 
 	return db, nil

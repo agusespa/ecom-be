@@ -40,7 +40,7 @@ func main() {
 	}
 
 	_, err = db.Exec(`
-		CREATE TABLE IF NOT EXISTS users (
+		CREATE TABLE IF NOT EXISTS customers (
 			customer_id INT AUTO_INCREMENT PRIMARY KEY,
 			customer_uuid VARCHAR(36) NOT NULL UNIQUE,
 			first_name VARCHAR(20) NOT NULL,

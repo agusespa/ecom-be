@@ -22,12 +22,16 @@ func main() {
 	flag.BoolVar(&devFlag, "dev", false, "enable development mode")
 	flag.Parse()
 
-	var logg logger.Logger
-	logg = logger.NewLogger(devFlag, ".ecom_customer")
+	logg := logger.NewLogger(devFlag, ".ecom_customer")
 
 	dbUser, dbAddr, dbPassword, err := helpers.GetDatabaseVars()
 	if err != nil {
-		logg.LogFatal(fmt.Errorf("failed to read env variables: %s", err.Error()))
+		logg.LogFatal(fmt.Errorf("failed to read database env variables: %s", err.Error()))
+	}
+
+	authApiKey, authDomain, err := helpers.GetAppVars()
+	if err != nil {
+		logg.LogFatal(fmt.Errorf("failed to read app env variables: %s", err.Error()))
 	}
 
 	allowedIPs := os.Getenv("ECOM_ALLOWED_GATEWAY_IPS")
@@ -43,12 +47,11 @@ func main() {
 	}
 
 	customerRepository := repository.NewMySqlRepository(db)
-	customerService := service.NewDefaultCustomerService(customerRepository, logg)
+	customerService := service.NewDefaultCustomerService(customerRepository, authApiKey, authDomain, logg)
 	customerHandler := handlers.NewDefaultCustomerHandler(customerService, logg)
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/customerapi/customer", customerHandler.HandleCustomer)
-	mux.HandleFunc("/customerapi/register", customerHandler.HandleCustomerRegister)
 
 	handler := middleware.ChainMiddleware(
 		mux,

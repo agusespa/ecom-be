@@ -35,15 +35,6 @@ func WriteError(w http.ResponseWriter, r *http.Request, err error) {
 	w.Header().Set("Content-Type", contentType)
 	w.WriteHeader(statusCode)
 
-	if strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
-		w.Header().Set("Content-Encoding", "gzip")
-		w.Header().Del("Content-Length")
-		gzipWriter := gzip.NewWriter(w)
-		defer gzipWriter.Close()
-		gz := gzipResponseWriter{ResponseWriter: w, Writer: gzipWriter}
-		w = gz
-	}
-
 	if _, err := w.Write([]byte(errorMessage)); err != nil {
 		// TODO handle properly
 		return

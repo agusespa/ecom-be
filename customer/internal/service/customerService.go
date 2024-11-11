@@ -18,22 +18,26 @@ import (
 
 type CustomerService interface {
 	PostCustomer(body models.CustomerRequest) (int64, error)
-	GetCustomerByUUID(uuid string) (models.Customer, error)
+	GetCustomerByID(id int64) (models.Customer, error)
 }
 
 type DefaultCustomerService struct {
 	CustomerRepo repository.CustomerRepository
+	AuthApyKey   string
+	AuthDomain   string
 	Logger       logger.Logger
 }
 
-func NewDefaultCustomerService(repo *repository.MySqlRepository, logger logger.Logger) *DefaultCustomerService {
+func NewDefaultCustomerService(repo *repository.MySqlRepository, authApyKey, authDomain string, logger logger.Logger) *DefaultCustomerService {
 	return &DefaultCustomerService{
 		CustomerRepo: repo,
+		AuthApyKey:   authApyKey,
+		AuthDomain:   authDomain,
 		Logger:       logger}
 }
 
-func (cs *DefaultCustomerService) GetCustomerByUUID(uuid string) (models.Customer, error) {
-	entity, err := cs.CustomerRepo.ReadCustomerByUUID(uuid)
+func (cs *DefaultCustomerService) GetCustomerByID(id int64) (models.Customer, error) {
+	entity, err := cs.CustomerRepo.ReadCustomerByID(id)
 	mappedCustomer := models.NewCustomer(
 		entity.CustomerID,
 		entity.CustomerUUID,
@@ -55,6 +59,7 @@ func (cs *DefaultCustomerService) PostCustomer(body models.CustomerRequest) (int
 	}
 
 	uuidStr := uuid.New().String()
+	body.CustomerUUID = uuidStr
 
 	tx, err := cs.CustomerRepo.StartTransaction()
 	if err != nil {
@@ -64,7 +69,7 @@ func (cs *DefaultCustomerService) PostCustomer(body models.CustomerRequest) (int
 		return 0, httperrors.NewError(err, http.StatusInternalServerError)
 	}
 
-	id, dbErr := cs.CustomerRepo.CreateCustomerWithTx(tx, body, uuidStr)
+	id, dbErr := cs.CustomerRepo.CreateCustomerWithTx(tx, body)
 	if dbErr != nil {
 		err := errors.New("failed to create customer: " + dbErr.Error())
 		err = httperrors.NewError(err, http.StatusInternalServerError)
@@ -73,9 +78,9 @@ func (cs *DefaultCustomerService) PostCustomer(body models.CustomerRequest) (int
 		return 0, dbErr
 	}
 
-	authErr := CreateUser(body, uuidStr)
+	authErr := cs.createAuthUser(body, uuidStr)
 	if authErr != nil {
-		err := errors.New("failed to create customer: " + authErr.Error())
+		err := errors.New("failed to create auth user: " + authErr.Error())
 		err = httperrors.NewError(err, http.StatusInternalServerError)
 		cs.Logger.LogError(err)
 		tx.Rollback()
@@ -83,7 +88,7 @@ func (cs *DefaultCustomerService) PostCustomer(body models.CustomerRequest) (int
 	}
 
 	if commitErr := tx.Commit(); commitErr != nil {
-		authErr := RemoveUser(uuidStr)
+		authErr := cs.removeAuthUser(uuidStr)
 		if authErr != nil {
 		}
 		err := errors.New("failed to commit customer: " + commitErr.Error())
@@ -100,7 +105,7 @@ func IsValidEmail(email string) bool {
 	return err == nil
 }
 
-func CreateUser(body models.CustomerRequest, uuid string) error {
+func (cs *DefaultCustomerService) createAuthUser(body models.CustomerRequest, uuid string) error {
 	customer := models.CustomerRequest{
 		CustomerUUID: uuid,
 		Email:        body.Email,
@@ -115,19 +120,22 @@ func CreateUser(body models.CustomerRequest, uuid string) error {
 		return httperrors.NewError(err, http.StatusInternalServerError)
 	}
 
-	req, err := http.NewRequest("POST", "http://192.168.64.7/a3n/api/register", bytes.NewBuffer(jsonData))
+	req, err := http.NewRequest("POST", cs.AuthDomain+"/api/user", bytes.NewBuffer(jsonData))
 	if err != nil {
 		return httperrors.NewError(err, http.StatusInternalServerError)
 	}
 	req.Header.Set("Content-Type", "application/json")
 	client := &http.Client{}
+
+	cs.Logger.LogInfo(fmt.Sprintf("making auth request: %s %s", req.Method, req.URL))
+
 	resp, err := client.Do(req)
 	if err != nil {
 		return httperrors.NewError(err, http.StatusServiceUnavailable)
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusCreated {
+	if resp.StatusCode != http.StatusOK {
 		bodyBytes, readErr := io.ReadAll(resp.Body)
 		if readErr != nil {
 			return httperrors.NewError(errors.New("auth API error: unable to read error response"), resp.StatusCode)
@@ -139,14 +147,18 @@ func CreateUser(body models.CustomerRequest, uuid string) error {
 	return nil
 }
 
-func RemoveUser(uuid string) error {
-	endpoint := fmt.Sprintf("http://192.168.64.7/a3n/api/user?uuid=%s", uuid)
+func (cs *DefaultCustomerService) removeAuthUser(uuid string) error {
+	endpoint := fmt.Sprintf("%s/api/user?uuid=%s", cs.AuthDomain, uuid)
 	req, err := http.NewRequest("DELETE", endpoint, nil)
 	if err != nil {
 		return httperrors.NewError(err, http.StatusInternalServerError)
 	}
-	//TODO add the api key
+
+	req.Header.Set("Authentication", cs.AuthApyKey)
 	client := &http.Client{}
+
+	cs.Logger.LogInfo(fmt.Sprintf("making auth request: %s", req.URL))
+
 	resp, err := client.Do(req)
 	if err != nil {
 		return httperrors.NewError(err, http.StatusServiceUnavailable)

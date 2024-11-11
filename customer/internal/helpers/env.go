@@ -5,12 +5,16 @@ import (
 	"os"
 )
 
-func GetApiKeyVars() (string, error) {
-	encryptionKey := os.Getenv("ECOM_CUSTOMER_ENCRYPTION_KEY")
-	if encryptionKey == "" {
-		return "", errors.New("failed to get ENCRYPTION_KEY variable")
+func GetAppVars() (string, string, error) {
+	authApiKey := os.Getenv("ECOM_AUTH_API_KEY")
+	if authApiKey == "" {
+		return "", "", errors.New("failed to get AUTH_API_KEY variable")
 	}
-	return encryptionKey, nil
+	authDomain := os.Getenv("ECOM_AUTH_DOMAIN")
+	if authApiKey == "" {
+		return "", "", errors.New("failed to get AUTH_DOMAIN variable")
+	}
+	return authApiKey, authDomain, nil
 }
 
 func GetDatabaseVars() (string, string, string, error) {

@@ -1,11 +1,8 @@
 package middleware
 
 import (
-	"fmt"
 	"net/http"
-	"strings"
 
-	"github.com/agusespa/ecom-be/customer/internal/helpers"
 	logger "github.com/agusespa/flogg"
 	"github.com/golang-jwt/jwt"
 )
@@ -32,19 +29,20 @@ type GatewayClaims struct {
 
 func GatewayMiddleware(next http.Handler, allowedIPs []string, logg logger.Logger) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		clientIP := helpers.GetIP(r)
-		isAllowedIP := false
-		for _, ip := range allowedIPs {
-			if strings.TrimSpace(ip) == clientIP {
-				isAllowedIP = true
-				break
-			}
-		}
-		if !isAllowedIP {
-			logg.LogError(fmt.Errorf("unauthorized access attempt from IP: %s", clientIP))
-			http.Error(w, "Unauthorized source", http.StatusForbidden)
-			return
-		}
+		// TODO uncomment
+		// clientIP := helpers.GetIP(r)
+		// isAllowedIP := false
+		// for _, ip := range allowedIPs {
+		// 	if strings.TrimSpace(ip) == clientIP {
+		// 		isAllowedIP = true
+		// 		break
+		// 	}
+		// }
+		// if !isAllowedIP {
+		// 	logg.LogError(fmt.Errorf("unauthorized access attempt from IP: %s", clientIP))
+		// 	http.Error(w, "Unauthorized source", http.StatusForbidden)
+		// 	return
+		// }
 
 		next.ServeHTTP(w, r)
 	})

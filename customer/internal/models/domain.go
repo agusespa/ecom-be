@@ -16,12 +16,12 @@ type Customer struct {
 }
 
 type CustomerRequest struct {
-	CustomerUUID string `json:"uuid"`
 	Email        string `json:"email"`
 	Password     string `json:"password"`
-	FirstName    string `json:"first_name"`
-	MiddleName   string `json:"middle_name"`
-	LastName     string `json:"last_name"`
+	FirstName    string `json:"firstName"`
+	MiddleName   string `json:"middleName"`
+	LastName     string `json:"lastName"`
+	CustomerUUID string `json:"uuid"`
 }
 
 type RegistrationResponse struct {

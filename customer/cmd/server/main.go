@@ -51,7 +51,7 @@ func main() {
 	customerHandler := handlers.NewDefaultCustomerHandler(customerService, logg)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/customerapi/customer", customerHandler.HandleCustomer)
+	mux.HandleFunc("/customerapi/customer/", customerHandler.HandleCustomer)
 
 	handler := middleware.ChainMiddleware(
 		mux,

@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"strconv"
 	"strings"
 
 	"github.com/agusespa/ecom-be/customer/internal/helpers"
@@ -64,8 +63,16 @@ func (h *DefaultCustomerHandler) handleCustomerData(w http.ResponseWriter, r *ht
 			return
 		}
 
+		reqUUID := r.Header.Get("X-Auth-Uuid")
+		err := h.verifyRequestPermission(customerID, reqUUID)
+		if err != nil {
+			h.Logger.LogError(err)
+			payload.WriteError(w, r, err)
+			return
+		}
+
 		if r.Method == http.MethodGet {
-			h.handleGetCustomer(w, r)
+			h.handleGetCustomer(w, r, customerID)
 			return
 		} else if r.Method == http.MethodDelete {
 			// h.HandleDeleteCustomer(w, r)
@@ -78,23 +85,22 @@ func (h *DefaultCustomerHandler) handleCustomerData(w http.ResponseWriter, r *ht
 	payload.WriteError(w, r, err)
 }
 
-func (h *DefaultCustomerHandler) handleGetCustomer(w http.ResponseWriter, r *http.Request) {
-	customerIDquery := r.URL.Query().Get("id")
-	if customerIDquery == "" {
-		err := errors.New("missing id parameter")
-		err = httperrors.NewError(err, http.StatusBadRequest)
-		h.Logger.LogError(err)
-		payload.WriteError(w, r, err)
-		return
-	}
-	customerID, err := strconv.ParseInt(customerIDquery, 10, 64)
+func (h *DefaultCustomerHandler) verifyRequestPermission(customerID int64, userUUID string) error {
+	uuid, err := h.CustomerService.GetCustomerUUID(customerID)
 	if err != nil {
-		err = httperrors.NewError(err, http.StatusInternalServerError)
-		h.Logger.LogError(err)
-		payload.WriteError(w, r, err)
-		return
+		return err
 	}
 
+	if uuid != userUUID {
+		err := errors.New("Customer doesn't have permission to access")
+		err = httperrors.NewError(err, http.StatusUnauthorized)
+		return err
+	}
+
+	return nil
+}
+
+func (h *DefaultCustomerHandler) handleGetCustomer(w http.ResponseWriter, r *http.Request, customerID int64) {
 	customer, err := h.CustomerService.GetCustomerByID(customerID)
 	if err != nil {
 		h.Logger.LogError(err)

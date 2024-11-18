@@ -18,6 +18,7 @@ import (
 type CustomerService interface {
 	PostCustomer(body models.CustomerRequest) (int64, error)
 	GetCustomerByID(id int64) (models.Customer, error)
+	GetCustomerUUID(id int64) (string, error)
 }
 
 type DefaultCustomerService struct {
@@ -33,6 +34,11 @@ func NewDefaultCustomerService(repo *repository.MySqlRepository, authApyKey, aut
 		AuthApyKey:   authApyKey,
 		AuthDomain:   authDomain,
 		Logger:       logger}
+}
+
+func (cs *DefaultCustomerService) GetCustomerUUID(id int64) (string, error) {
+	uuid, err := cs.CustomerRepo.ReadCustomerUUID(id)
+	return uuid, err
 }
 
 func (cs *DefaultCustomerService) GetCustomerByID(id int64) (models.Customer, error) {

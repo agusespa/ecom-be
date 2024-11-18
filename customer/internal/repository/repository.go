@@ -11,6 +11,7 @@ import (
 
 type CustomerRepository interface {
 	ReadCustomerByID(id int64) (models.CustomerEntity, error)
+	ReadCustomerUUID(id int64) (string, error)
 	DeleteCustomer(id int64) error
 	CreateCustomer(body models.CustomerRequest) (int64, error)
 }
@@ -21,6 +22,31 @@ type MySqlRepository struct {
 
 func NewMySqlRepository(db *sql.DB) *MySqlRepository {
 	return &MySqlRepository{DB: db}
+}
+
+func (repo *MySqlRepository) ReadCustomerUUID(id int64) (string, error) {
+	var uuid string
+
+	query := `
+		SELECT 
+			c.customer_uuid
+		FROM customers c
+		WHERE c.customer_id = ?
+	`
+
+	row := repo.DB.QueryRow(query, id)
+	err := row.Scan(&uuid)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			err = httperrors.NewError(err, http.StatusNotFound)
+			return "", err
+		}
+		err = httperrors.NewError(err, http.StatusInternalServerError)
+		return "", err
+	}
+
+	return uuid, nil
 }
 
 func (repo *MySqlRepository) ReadCustomerByID(id int64) (models.CustomerEntity, error) {

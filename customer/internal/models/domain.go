@@ -24,6 +24,15 @@ type CustomerRequest struct {
 	CustomerUUID string `json:"uuid"`
 }
 
+type AuthUserRequest struct {
+	UserUUID   string `json:"userUUID"`
+	Email      string `json:"email"`
+	Password   string `json:"password"`
+	FirstName  string `json:"firstName"`
+	MiddleName string `json:"middleName"`
+	LastName   string `json:"lastName"`
+}
+
 type RegistrationResponse struct {
 	CustomerID int64 `json:"customerID"`
 }

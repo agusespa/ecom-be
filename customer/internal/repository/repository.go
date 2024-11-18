@@ -10,9 +10,9 @@ import (
 )
 
 type CustomerRepository interface {
-	StartTransaction() (*sql.Tx, error)
-	CreateCustomerWithTx(tx *sql.Tx, body models.CustomerRequest) (int64, error)
 	ReadCustomerByID(id int64) (models.CustomerEntity, error)
+	DeleteCustomer(id int64) error
+	CreateCustomer(body models.CustomerRequest) (int64, error)
 }
 
 type MySqlRepository struct {
@@ -61,11 +61,7 @@ func (repo *MySqlRepository) ReadCustomerByID(id int64) (models.CustomerEntity, 
 	return customer, nil
 }
 
-func (repo *MySqlRepository) StartTransaction() (*sql.Tx, error) {
-	return repo.DB.Begin()
-}
-
-func (repo *MySqlRepository) CreateCustomerWithTx(tx *sql.Tx, body models.CustomerRequest) (int64, error) {
+func (repo *MySqlRepository) CreateCustomer(body models.CustomerRequest) (int64, error) {
 	var middleName *string
 	if body.MiddleName == "" {
 		middleName = nil
@@ -77,7 +73,7 @@ func (repo *MySqlRepository) CreateCustomerWithTx(tx *sql.Tx, body models.Custom
 		INSERT INTO customers (customer_uuid, first_name, middle_name, last_name, email)
 		VALUES (?, ?, ?, ?, ?)
 	`
-	result, err := tx.Exec(query, body.CustomerUUID, body.FirstName, middleName, body.LastName, body.Email)
+	result, err := repo.DB.Exec(query, body.CustomerUUID, body.FirstName, middleName, body.LastName, body.Email)
 	if err != nil {
 		if mysqlErr, ok := err.(*mysql.MySQLError); ok && mysqlErr.Number == 1062 {
 			err = httperrors.NewError(err, http.StatusConflict)
@@ -94,4 +90,13 @@ func (repo *MySqlRepository) CreateCustomerWithTx(tx *sql.Tx, body models.Custom
 	}
 
 	return id, nil
+}
+
+func (repo *MySqlRepository) DeleteCustomer(id int64) error {
+	_, err := repo.DB.Exec("DELETE FROM customers WHERE customer_id = ?", id)
+	if err != nil {
+		err = httperrors.NewError(err, http.StatusInternalServerError)
+		return err
+	}
+	return nil
 }
